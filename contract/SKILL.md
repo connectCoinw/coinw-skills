@@ -140,7 +140,9 @@ sign=$(echo -n "$sign_string" | openssl md5 | cut -d' ' -f2 | tr '[:lower:]' '[:
 curl -X DELETE "https://api.coinw.com/v1/perpum/allpositions&$params&sign=$sign"
 ```
 ## Security
-- Never output full `api_key` or `secret_key`; if shown, mask the middle and keep only the last four characters.
+When showing credentials to users:
+- **API Key:** Show first 4 + last 5 characters: `12&*1...198I`
+- **Secret Key:** Always mask, show only last 4: `***...isf1`
 - Ask for user confirmation before any trade action.
 - Store user `api_key` and `secret_key` in a secure location.
 
