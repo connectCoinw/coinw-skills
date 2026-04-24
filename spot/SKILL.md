@@ -2,7 +2,7 @@
 {
   "name": 'Coinw Spot Skill',
   "description": 'Coinw Spot REST API skill: covers market data, order placement/cancellation, order queries, account balances, and asset transfers.',
-  "metadata": {"version": "1.2.0","author": "Coinw","openclaw":{"always": true,"requires":{"env":["COINW_API_KEY","COINW_SECRET_KEY"]}}}
+  "metadata": {"version": "1.5.0","author": "Coinw","openclaw":{"always": true,"requires":{"env":["COINW_API_KEY","COINW_SECRET_KEY"]}}}
 }
 ---
 

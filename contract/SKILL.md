@@ -2,13 +2,26 @@
 {
   "name": 'Coinw Contract Skill',
   "description": 'Coinw Contract REST API skill: covers market data, order placement/cancellation, TP/SL, position and order queries, account assets, position modes, and leverage queries.',
-  "metadata": {"version": "1.3.0","author": "Coinw"}
+  "metadata": {"version": "1.5.0","author": "Coinw","openclaw":{"always": true,"requires":{"env":["COINW_API_KEY","COINW_SECRET_KEY"]}}}
 }
 ---
 
 # Coinw Contract Skill
 
 Coinw Contract REST API skill: covers market data, order placement/cancellation, TP/SL, position and order queries, account assets, position modes, and leverage.
+
+
+### Setup Credentials
+CoinW private endpoints require `api_key` and a request signature (`sign`).
+
+> Signing note: Contract endpoints must use Contract signing (HMAC-SHA256 + Base64 + `timestamp` headers). Do not use Spot MD5 signing for Contract APIs.
+
+1. Environment variables:
+```bash
+export COINW_API_KEY="your_api_key"
+export COINW_SECRET_KEY="your_secret_key"
+```
+2. In chat: provide `api_key`/`secret_key` (and an account name). The agent will mask secrets when showing them back and store them securely in OpenClaw's credential storage (not inside skill markdown files).
 
 ## Key Features
 - Market data: contract instruments, order book, K-line data, trades, margin requirements
@@ -105,7 +118,7 @@ Coinw Contract REST API skill: covers market data, order placement/cancellation,
 ### Auth and URL
 - Base URL: `https://api.coinw.com`.
 - Public market endpoints are mostly `GET https://api.coinw.com/v1/perpum/...` or `.../v1/perpumPublic/...`.
-- Private endpoints require `api_key` and `sign` (MD5, see Reference) in query/body.
+- Private endpoints require header-based auth: `api_key`, `timestamp`, `sign` (HMAC-SHA256 then Base64, see Reference).
 ### Common request fields
 - **instrument** / **name**: contract identifier (often mixed in docs; means underlying/contract name).
 - **symbols**: comma-separated list for batch endpoints.
@@ -134,10 +147,16 @@ curl "https://api.coinw.com/v1/perpumPublic/tickers"
 ```
 ### Auth required (private endpoint)
 ```bash
-params="api_key=$COINW_API_KEY"
-sign_string="$params&secret_key=$COINW_SECRET_KEY"
-sign=$(echo -n "$sign_string" | openssl md5 | cut -d' ' -f2 | tr '[:lower:]' '[:upper:]')
-curl -X DELETE "https://api.coinw.com/v1/perpum/allpositions&$params&sign=$sign"
+timestamp=$(($(date +%s%N)/1000000))
+method="DELETE"
+api_url="/v1/perpum/allpositions"
+payload="${timestamp}${method}${api_url}"
+sign=$(printf "%s" "$payload" | openssl dgst -sha256 -hmac "$COINW_SECRET_KEY" -binary | openssl base64)
+curl -X DELETE "https://api.coinw.com${api_url}" \
+  -H "api_key: $COINW_API_KEY" \
+  -H "timestamp: ${timestamp}" \
+  -H "sign: ${sign}" \
+  -H "Content-type: application/json"
 ```
 ## Security
 When showing credentials to users:
@@ -157,11 +176,11 @@ When showing credentials to users:
 When user provides new credentials:
 
 * Ask for account name, api_key, secret_key
-* Store in `TOOLS.md` with masked display confirmation 
+* Store the provided credentials in OpenClaw's secure credential store with masked display confirmation 
 
 ## Reference
 - Authentication`./references/Authentication.md`
-- errorcode: `./references/errorcode.md`
+- errorcode: `./references/error-codes.md`
 - notes: `./references/notes.md`
 - api-key create steps: `./references/api-key-creation-steps.md`
 
