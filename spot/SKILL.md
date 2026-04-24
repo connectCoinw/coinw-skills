@@ -2,13 +2,25 @@
 {
   "name": 'Coinw Spot Skill',
   "description": 'Coinw Spot REST API skill: covers market data, order placement/cancellation, order queries, account balances, and asset transfers.',
-  "metadata": {"version": "1.2.0","author": "Coinw"}
+  "metadata": {"version": "1.2.0","author": "Coinw","openclaw":{"always": true,"requires":{"env":["COINW_API_KEY","COINW_SECRET_KEY"]}}}
 }
 ---
 
 # Coinw Spot Skill
 
 Coinw Spot REST API skill: covers market data, order placement/cancellation, order queries, account balances, and asset transfers.
+
+### Setup Credentials
+CoinW private endpoints require `api_key` and a request signature (`sign`).
+
+> Signing note: Spot endpoints use Spot MD5 uppercase signing. Do not use Contract HMAC-SHA256 signing for Spot APIs.
+
+1. Environment variables:
+```bash
+export COINW_API_KEY="your_api_key"
+export COINW_SECRET_KEY="your_secret_key"
+```
+2. In chat: provide `api_key`/`secret_key` (and an account name). The agent will mask secrets when showing them back and store them securely in OpenClaw's credential storage (not inside skill markdown files).
 
 ## Key Features
 - Market data: trading pairs, 24h summary, order book, recent trades, K-line data, hot volume stats
@@ -108,10 +120,10 @@ When showing credentials to users:
 When user provides new credentials:
 
 * Ask for account name 
-* Store in `TOOLS.md` with masked display confirmation 
+* Store the provided credentials in OpenClaw's secure credential store with masked display confirmation 
 
 ## Reference
 - Authentication`./references/Authentication.md`
-- errorcode: `./references/errorcode.md`
+- errorcode: `./references/error-codes.md`
 - notes: `./references/notes.md`
 - api-key create steps: `./references/api-key-creation-steps.md`
